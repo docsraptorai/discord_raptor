@@ -34,7 +34,7 @@ async def on_ready():
 # , guild=discord.Object(id=12417128931)) #Add the guild ids in which the slash command will appear. If it should be in all, remove the argument, but note that it will take some time (up to an hour) to register the command if it's for all guilds.
 @tree.command(name="list", description="list the raptors you have trained", guild=discord.Object(id=1138385140674998312))
 async def raptor_list(interaction):
-    await interaction.response.send_message(raptor.r_list())
+    await interaction.response.send_message(raptor.list())
 
 
 client.run(TOKEN)
