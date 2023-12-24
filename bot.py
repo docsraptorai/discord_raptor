@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 import logging
+from modules.raptorai import raptor
 
 logging.basicConfig(
     level=logging.INFO,
@@ -33,7 +34,7 @@ async def on_ready():
 # , guild=discord.Object(id=12417128931)) #Add the guild ids in which the slash command will appear. If it should be in all, remove the argument, but note that it will take some time (up to an hour) to register the command if it's for all guilds.
 @tree.command(name="list", description="list the raptors you have trained", guild=discord.Object(id=1138385140674998312))
 async def raptor_list(interaction):
-    await interaction.response.send_message("No list yet")
+    await interaction.response.send_message(raptor.r_list())
 
 
 client.run(TOKEN)
