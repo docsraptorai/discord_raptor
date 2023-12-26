@@ -28,26 +28,27 @@ async def on_ready():
 @tree.command(name='list', description='list the raptors you have trained', guild=discord.Object(id=1138385140674998312))
 async def raptor_list(interaction):
     await interaction.response.defer()
-    await interaction.followup.send(raptorai.list())
+    ret = await raptorai.list()
+    await interaction.followup.send()
 
 @tree.command(name='feed', description='feed your raptor with some yumi content', guild=discord.Object(id=1138385140674998312))
 async def raptor_feed(interaction, url: str):
     await interaction.response.defer()
-    ret = raptorai.feed(url)
+    ret = await raptorai.feed(url)
     response = f'{ret} ({url})'
-    await interaction.followup.send(raptorai.feed(url))
+    await interaction.followup.send(ret)
 
 @tree.command(name='ask', description='ask your raptor', guild=discord.Object(id=1138385140674998312))
 async def raptor_feed(interaction, question: str):
     await interaction.response.defer()
-    ret = raptorai.ask(question)
+    ret = await raptorai.ask(question)
     response = f'Question: {question}\nAnswer:\n{ret}'
     await interaction.followup.send(response)
 
 @tree.command(name='kill', description='kill your raptor :(', guild=discord.Object(id=1138385140674998312))
 async def raptor_kill(interaction):
     await interaction.response.defer()
-    ret = raptorai.kill()
+    ret = await raptorai.kill()
     await interaction.followup.send('Raptor hunted sir')
 
 client.run(TOKEN)

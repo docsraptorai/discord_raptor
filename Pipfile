@@ -16,6 +16,7 @@ greenlet = "*"
 pypdf = "*"
 cryptography = "*"
 torch = "*"
+tiktoken = "*"
 
 [dev-packages]
 
