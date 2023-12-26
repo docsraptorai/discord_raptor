@@ -278,28 +278,18 @@ class Raptor():
         return response
 
     def print_stats(self):
-        self.logger.info('print_stats')
-#         self.logger.info(
-#             "Embedding Tokens: ",
-#             self.token_counter.total_embedding_token_count,
-#             "\n",
-#             "LLM Prompt Tokens: ",
-#             self.token_counter.prompt_llm_token_count,
-#             "\n",
-#             "LLM Completion Tokens: ",
-#             self.token_counter.completion_llm_token_count,
-#             "\n",
-#             "Total LLM Token Count: ",
-#             self.token_counter.total_llm_token_count,
-#             "\n",
-#         )
+        self.logger.info('STATS')
+        self.logger.info('|_ Embedding Tokens       : ' + str(self.token_counter.total_embedding_token_count))
+        self.logger.info('|_ LLM Prompt Tokens      : ' + str(self.token_counter.prompt_llm_token_count))
+        self.logger.info('|_ LLM Completion Tokens  : ' + str(self.token_counter.completion_llm_token_count))
+        self.logger.info('|_ Total LLM Token Count  : ' + str(self.token_counter.total_llm_token_count))
 
     def suicide(self):
         self.logger.info('suicide')
         table = self.raptor_table()
         self.logger.info(f'dropping table: {table}')
         with self.db_connect_index.cursor() as c:
-            c.execute(f'DROP table "{table}"')
+            c.execute(f'DROP table IF EXISTS "{table}"')
         return 'arg'
 
 
