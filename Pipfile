@@ -6,6 +6,16 @@ name = "pypi"
 [packages]
 "discord.py" = "*"
 python-dotenv = "*"
+llama-index = "*"
+transformers = "*"
+psycopg2-binary = "*"
+pgvector = "*"
+asyncpg = "*"
+sqlalchemy = {extras = ["asyncio"], version = "*"}
+greenlet = "*"
+pypdf = "*"
+cryptography = "*"
+torch = "*"
 
 [dev-packages]
 
