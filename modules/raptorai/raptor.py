@@ -16,7 +16,9 @@ from llama_index import VectorStoreIndex
 EMBED_MODEL = 'BAAI/bge-small-en-v1.5'
 EMBED_DIMENSION = 384
 INDEX_SUFFIX = '-index'
-LLM_MODEL = 'gpt-3.5-turbo'
+INDEX_TABLE_PREFIX = 'data_'
+# LLM_MODEL = 'gpt-3.5-turbo'
+LLM_MODEL = 'gpt-4'
 SYSTEM_DB = 'postgres'
 VECTOR_DB = 'vector_db'
 DOCSRAPTORAI_DB = 'docsraptorai'
@@ -38,6 +40,7 @@ class Raptor():
     db_user = None
     db_connect_system = None
     db_connect = None
+    db_connect_index = None
 
     def __init__(self):
         logger.info('init')
@@ -91,6 +94,15 @@ class Raptor():
             user=self.db_user,
         )
         self.db_connect.autocommit = True
+        logger.info('    index vector db connection')
+        self.db_connect_index = psycopg2.connect(
+            dbname=self.db_vector,
+            host=self.db_host,
+            password=self.db_password,
+            port=self.db_port,
+            user=self.db_user,
+        )
+        self.db_connect_index.autocommit = True
 
     def init_db(self):
         logger.info(f'    Checking DB {self.db_docsraptorai}')
@@ -169,6 +181,9 @@ class Raptor():
     def raptor_index(self, raptor_name):
         return f'{raptor_name}{INDEX_SUFFIX}'
 
+    def raptor_table(self, raptor_name):
+        return f'{INDEX_TABLE_PREFIX}{self.raptor_index(raptor_name)}'
+
     def get_documents(self, url):
         logger.info(f'Getting documents from: {url}')
         RemoteReader = download_loader("RemoteReader")
@@ -202,5 +217,14 @@ class Raptor():
             return 'Rrrr, feed me first'
         else:
             return response.response
+
+    def kill(self):
+        logger.info('reset')
+        table = self.raptor_table(RAPTOR_DEFAULT_NAME)
+        logger.info(f'dropping table: {table}')
+        with self.db_connect_index.cursor() as c:
+            c.execute(f'DROP table "{table}"')
+        return 'Raptor hunted sir'
+
 
 raptorai = Raptor()

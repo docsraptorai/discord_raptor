@@ -44,4 +44,10 @@ async def raptor_feed(interaction, question: str):
     response = f'Question: {question}\nAnswer:\n{ret}'
     await interaction.followup.send(response)
 
+@tree.command(name='kill', description='kill your raptor :(', guild=discord.Object(id=1138385140674998312))
+async def raptor_kill(interaction):
+    await interaction.response.defer()
+    ret = raptorai.kill()
+    await interaction.followup.send('Raptor hunted sir')
+
 client.run(TOKEN)
