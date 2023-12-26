@@ -6,13 +6,14 @@ import psycopg2
 from llama_index.embeddings import OpenAIEmbedding
 from llama_index.llms import OpenAI
 from llama_index import ServiceContext
-from llama_index import set_global_service_context
 from llama_index.vector_stores import PGVectorStore
 from llama_index.storage.storage_context import StorageContext
 from llama_index import download_loader
 from llama_index import VectorStoreIndex
 from llama_index.callbacks import CallbackManager, TokenCountingHandler
+from llama_index import set_global_service_context
 import tiktoken
+
 
 # gpt-4, gpt-4-32k, gpt-4-1106-preview, gpt-4-vision-preview, gpt-4-0613, gpt-4-32k-0613, gpt-4-0314, gpt-4-32k-0314, gpt-3.5-turbo, gpt-3.5-turbo-16k, gpt-3.5-turbo-1106, gpt-3.5-turbo-0613, gpt-3.5-turbo-16k-0613, gpt-3.5-turbo-0301, text-davinci-003, text-davinci-002, gpt-3.5-turbo-instruct, text-ada-001, text-babbage-001, text-curie-001, ada, babbage, curie, davinci, gpt-35-turbo-16k, gpt-35-turbo
 EMBED_MODEL = 'text-embedding-ada-002'
@@ -47,6 +48,7 @@ class RaptorAI():
     def __init__(self):
         self.logger.info('init')
         self.init_db_connections()
+
 
     def init_db_connections(self):
         self.logger.info('  Initialize Postgres')
@@ -198,9 +200,12 @@ class Raptor():
         self.service_context = ServiceContext.from_defaults(
                 llm=self.llm, callback_manager=self.callback_manager, embed_model=self.embed_model
         )
+        # Cannot find how to pass query embeddings from service context without setting global service context
+        self.logger.info('  Set global service context for query embeddings')
+        set_global_service_context(self.service_context)
 
     def get_vector_store(self, index_name):
-        self.logger.info('Get vector store')
+        self.logger.info(f'Get vector store: {index_name}, dimension: {str(self.embed_model_dimension)}')
 
         return PGVectorStore.from_params(
             database=self.db_vector_name,
@@ -221,7 +226,7 @@ class Raptor():
         self.logger.info(f'Load index from stored vectors')
         index_name = self.index_from_name()
         vector_store = self.get_vector_store(index_name)
-        storage_context = self.get_storage_context(vector_store)
+        storage_context = self.get_storage_context(vector_store = vector_store)
 
         return VectorStoreIndex.from_vector_store(
             vector_store, storage_context=storage_context
@@ -239,7 +244,7 @@ class Raptor():
         # self.logger.info(f'storage context: {storage_context}')
         self.logger.info('Index in vector store')
         index = VectorStoreIndex.from_documents(
-            documents, storage_context=storage_context, service_context=self.service_context
+            documents, storage_context=storage_context, service_context=self.service_context, embed_model = self.embed_model
         )
         return index
 
