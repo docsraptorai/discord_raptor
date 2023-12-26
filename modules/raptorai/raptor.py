@@ -26,6 +26,10 @@ DOCSRAPTORAI_DB = 'docsraptorai'
 RAPTOR_DEFAULT_NAME = 'bob'
 LOGGER_RAPTOR_ROOT = 'raptor'
 
+COST_1000_EMBEDDINGS = 0.0001
+COST_1000_PROMPT = 0.001
+COST_1000_COMPLETION = 0.002
+
 
 class RaptorAI():
     logger = utils.get_logger('docsraptorai')
@@ -278,11 +282,22 @@ class Raptor():
         return response
 
     def print_stats(self):
+        cost_embeddings = COST_1000_EMBEDDINGS * self.token_counter.total_embedding_token_count / 1000
+        cost_prompt = COST_1000_PROMPT * self.token_counter.prompt_llm_token_count / 1000
+        cost_completion = COST_1000_COMPLETION * self.token_counter.completion_llm_token_count / 1000
+        cost_total = cost_embeddings + cost_prompt + cost_completion
         self.logger.info('STATS')
-        self.logger.info('|_ Embedding Tokens       : ' + str(self.token_counter.total_embedding_token_count))
-        self.logger.info('|_ LLM Prompt Tokens      : ' + str(self.token_counter.prompt_llm_token_count))
-        self.logger.info('|_ LLM Completion Tokens  : ' + str(self.token_counter.completion_llm_token_count))
-        self.logger.info('|_ Total LLM Token Count  : ' + str(self.token_counter.total_llm_token_count))
+        self.logger.info('|_ TOKENS')
+        self.logger.info('|___ Embedding Tokens       : ' + str(self.token_counter.total_embedding_token_count))
+        self.logger.info('|___ LLM Prompt Tokens      : ' + str(self.token_counter.prompt_llm_token_count))
+        self.logger.info('|___ LLM Completion Tokens  : ' + str(self.token_counter.completion_llm_token_count))
+        self.logger.info('|___ Total LLM Token Count  : ' + str(self.token_counter.total_llm_token_count))
+        self.logger.info('|_ COSTS')
+        self.logger.info('|___ Embedding              : ' + str(cost_embeddings))
+        self.logger.info('|___ LLM Prompt             : ' + str(cost_prompt))
+        self.logger.info('|___ LLM Completion         : ' + str(cost_completion))
+        self.logger.info('|___ Total                  : ' + str(cost_total))
+
 
     def suicide(self):
         self.logger.info('suicide')
