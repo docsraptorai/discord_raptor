@@ -5,6 +5,8 @@ import os
 
 load_dotenv()
 
+logging.getLogger().setLevel(os.getenv('LOG_LEVEL'))
+
 def get_logger(name):
     log_level = os.getenv('LOG_LEVEL')
     log_dir = os.getenv('LOG_DIR')
@@ -29,4 +31,8 @@ def get_logger(name):
     # add the handler to the logger
     logger.addHandler(handler_file)
     return logger
+
+def get_logger_child(name):
+    return logging.getLogger(name)
+
 

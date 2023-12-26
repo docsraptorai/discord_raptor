@@ -29,7 +29,7 @@ async def on_ready():
 async def raptor_list(interaction):
     await interaction.response.defer()
     ret = await raptorai.list()
-    await interaction.followup.send()
+    await interaction.followup.send(ret)
 
 @tree.command(name='feed', description='feed your raptor with some yumi content', guild=discord.Object(id=1138385140674998312))
 async def raptor_feed(interaction, url: str):

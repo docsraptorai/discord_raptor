@@ -24,9 +24,12 @@ SYSTEM_DB = 'postgres'
 VECTOR_DB = 'vector_db'
 DOCSRAPTORAI_DB = 'docsraptorai'
 RAPTOR_DEFAULT_NAME = 'bob'
+LOGGER_RAPTOR_ROOT = 'raptor'
+
 
 class RaptorAI():
     logger = utils.get_logger('docsraptorai')
+    raptor_logger = utils.get_logger(LOGGER_RAPTOR_ROOT)
     db_system= SYSTEM_DB
     db_docsraptorai = DOCSRAPTORAI_DB
     db_vector = VECTOR_DB
@@ -138,9 +141,10 @@ class Raptor():
     db_connect = None
     db_connect_index = None
 
-    logger = utils.get_logger('raptor')
+    logger = None
 
     def __init__(self, name, embed_model_name, embed_model_dimension, model_name, db_vector_name, db_connect):
+        self.logger = utils.get_logger_child(f'{LOGGER_RAPTOR_ROOT}.{name}')
         self.logger.info(f'init {name}')
         self.name = name
         self.embed_model_name = embed_model_name
@@ -233,9 +237,7 @@ class Raptor():
         index = VectorStoreIndex.from_documents(
             documents, storage_context=storage_context, service_context=self.service_context
         )
-        self.print_stats()
-        # return index
-        return None
+        return index
 
     def feed(self, url):
         self.logger.info(f'Feed {self.name} from url: {url}')
