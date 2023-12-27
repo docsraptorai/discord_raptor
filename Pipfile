@@ -17,6 +17,7 @@ pypdf = "*"
 cryptography = "*"
 torch = "*"
 tiktoken = "*"
+petname = "*"
 
 [dev-packages]
 

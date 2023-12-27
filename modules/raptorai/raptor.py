@@ -13,6 +13,7 @@ from llama_index import VectorStoreIndex
 from llama_index.callbacks import CallbackManager, TokenCountingHandler
 from llama_index import set_global_service_context
 import tiktoken
+import petname
 
 
 # gpt-4, gpt-4-32k, gpt-4-1106-preview, gpt-4-vision-preview, gpt-4-0613, gpt-4-32k-0613, gpt-4-0314, gpt-4-32k-0314, gpt-3.5-turbo, gpt-3.5-turbo-16k, gpt-3.5-turbo-1106, gpt-3.5-turbo-0613, gpt-3.5-turbo-16k-0613, gpt-3.5-turbo-0301, text-davinci-003, text-davinci-002, gpt-3.5-turbo-instruct, text-ada-001, text-babbage-001, text-curie-001, ada, babbage, curie, davinci, gpt-35-turbo-16k, gpt-35-turbo
@@ -24,7 +25,7 @@ LLM_MODEL = 'gpt-3.5-turbo'
 SYSTEM_DB = 'postgres'
 VECTOR_DB = 'vector_db'
 DOCSRAPTORAI_DB = 'docsraptorai'
-RAPTOR_DEFAULT_NAME = 'bob'
+RAPTOR_DEFAULT_NAME = 'ace'
 LOGGER_RAPTOR_ROOT = 'raptor'
 
 COST_1000_EMBEDDINGS = 0.0001
@@ -85,6 +86,7 @@ class RaptorAI():
             if not docsraptorai_db_exist:
                 self.logger.info(f'    Creating DB {self.db_docsraptorai}')
                 c.execute(f'CREATE DATABASE {self.db_docsraptorai}')
+                self.init_docsraptorai_db()
 
         if os.getenv('DB_RESET_INDEX') == 'true':
             self.logger.info(f'    Droping DB {self.db_vector}')
@@ -99,12 +101,34 @@ class RaptorAI():
                 self.logger.info(f'    Creating DB {self.db_vector}')
                 c.execute(f'CREATE DATABASE {self.db_vector}')
 
+    def init_docsraptorai_db(self):
+        self.logger.info('      init docsraptorai db')
+        connect = psycopg2.connect(
+            dbname=self.db_docsraptorai,
+            host=self.db_host,
+            password=self.db_password,
+            port=self.db_port,
+            user=self.db_user,
+        )
+        connect.autocommit = True
+        with connect.cursor() as c:
+            self.logger.info('creating raptor table')
+            c.execute('CREATE TABLE raptor (id SERIAL PRIMARY KEY, name VARCHAR(64));')
+
     def get_raptor(self, name):
         return Raptor(name, EMBED_MODEL, EMBED_DIMENSION, LLM_MODEL, self.db_vector, self.db_connect)
 
     async def list(self):
         self.logger.info('listing raptors')
-        return 'Go chase a raptor!'
+        raptor_list = [RAPTOR_DEFAULT_NAME]
+        with self.db_connect.cursor() as c:
+            c.execute('SELECT name from raptor')
+            rows = c.fetchall()
+            self.logger.info(f'  select result: {rows}')
+            for raptor_tuple in rows:
+                raptor_list.append(raptor_tuple[0])
+
+        return raptor_list
 
     async def feed(self, url: str):
         self.logger.info(f'feeding with: {url}')
@@ -128,6 +152,15 @@ class RaptorAI():
         raptor = self.get_raptor(RAPTOR_DEFAULT_NAME)
         raptor.suicide()
         return 'Raptor hunted sir'
+
+    async def hatch(self):
+        self.logger.info('hatch a new raptor')
+        name = petname.generate()
+        self.get_raptor(name)
+        self.logger.info(f'  name: {name}')
+        with self.db_connect.cursor() as c:
+            c.execute(f'INSERT INTO raptor (name) VALUES (\'{name}\')')
+        return name
 
 class Raptor():
     name = None

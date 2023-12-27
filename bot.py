@@ -51,4 +51,11 @@ async def raptor_kill(interaction):
     ret = await raptorai.kill()
     await interaction.followup.send('Raptor hunted sir')
 
+@tree.command(name='hatch', description='hatch a new raptor \o/', guild=discord.Object(id=1138385140674998312))
+async def raptor_hatch(interaction):
+    await interaction.response.defer()
+    ret = await raptorai.hatch()
+    await interaction.followup.send(f'A warm welcome to your new raptor {ret}')
+
+
 client.run(TOKEN)
